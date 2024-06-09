@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout, QWidget, QHeaderView, QMessageBox, \
-    QProgressBar, QFileDialog, QTableWidgetItem
+    QProgressBar, QFileDialog, QTableWidgetItem, QLabel, QLineEdit, QHBoxLayout
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
 import csv
@@ -62,6 +62,22 @@ class MainWindow(QMainWindow):
         about_menu = menu.addMenu("About")
         about_menu.addAction("About")  # Placeholder for about action
 
+        # IP range input fields
+        ip_start_range_label = QLabel("IP Range:")
+        ip_start_range_input = QLineEdit()
+
+        ip_end_range_label = QLabel("to")
+        ip_end_range_input = QLineEdit()
+
+        # Create a horizontal layout and add the labels and input fields
+        ip_range_layout = QHBoxLayout()
+        ip_range_layout.addWidget(ip_start_range_label)
+        ip_range_layout.addWidget(ip_start_range_input)
+        ip_range_layout.addWidget(ip_end_range_label)
+        ip_range_layout.addWidget(ip_end_range_input)
+
+
+
         # Table widget setup
         self.table = QTableWidget()
         self.table.setRowCount(0)  # Initially empty table
@@ -93,8 +109,9 @@ class MainWindow(QMainWindow):
 
         # Main layout and central widget setup
         layout = QVBoxLayout()
-        layout.addWidget(self.table)
-        layout.addWidget(self.status_bar)
+        layout.addLayout(ip_range_layout)  # Add IP range layout to main layout
+        layout.addWidget(self.table)  # Add table widget to layout
+        layout.addWidget(self.status_bar)  # Add status bar to layout
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
