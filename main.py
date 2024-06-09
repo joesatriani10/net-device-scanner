@@ -49,6 +49,7 @@ class ScanThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.scan_thread = None
         self.setWindowTitle("Net Device Scanner")  # Set window title
         self.resize(1280, 768)  # Set initial window size
         self.setMinimumSize(800, 600)  # Set minimum window size
@@ -56,7 +57,7 @@ class MainWindow(QMainWindow):
         # Menu bar setup
         menu = self.menuBar()
         file_menu = menu.addMenu("File")
-        file_menu.addAction("Scan")  # Placeholder for scan action
+        file_menu.addAction("Scan").triggered.connect(self.scan_network)  # Placeholder for scan action
         file_menu.addAction("Export Table").triggered.connect(self.export_table)  # Placeholder for export action
         file_menu.addAction("Exit").triggered.connect(self.close)  # Exit action
         about_menu = menu.addMenu("About")
@@ -118,7 +119,7 @@ class MainWindow(QMainWindow):
     # Slot to start network scan
     def scan_network(self):
         self.progress_bar.setValue(0)  # Reset progress bar
-
+        self.status_bar.showMessage("Scanning network...")  # Update status bar
         self.scan_thread = ScanThread()
         self.scan_thread.progress_update.connect(self.progress_bar.setValue)  # Connect progress signal
         self.scan_thread.finished.connect(self.scan_finished)
