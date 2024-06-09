@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout, QWidget, QHeaderView, QMessageBox, \
-    QProgressBar
+    QProgressBar, QFileDialog, QTableWidgetItem
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
 import csv
@@ -40,6 +40,10 @@ class ScanThread(QThread):
             self.progress_update.emit(i)  # Emit progress (0 to 100)
             self.msleep(100)  # Simulate scan time (adjust later)
 
+        # Emit the scan results to the main thread
+        self.progress_update.emit(100)  # Signal scan completion
+        self.finished.emit()
+
 
 # Main window class for the IP scanner application
 class MainWindow(QMainWindow):
@@ -53,7 +57,7 @@ class MainWindow(QMainWindow):
         menu = self.menuBar()
         file_menu = menu.addMenu("File")
         file_menu.addAction("Scan")  # Placeholder for scan action
-        file_menu.addAction("Export Table")  # Placeholder for export action
+        file_menu.addAction("Export Table").triggered.connect(self.export_table)  # Placeholder for export action
         file_menu.addAction("Exit").triggered.connect(self.close)  # Exit action
         about_menu = menu.addMenu("About")
         about_menu.addAction("About")  # Placeholder for about action
@@ -102,18 +106,49 @@ class MainWindow(QMainWindow):
         self.progress_bar.setValue(0)  # Reset progress bar
 
         self.scan_thread = ScanThread()
-        self.scan_thread.progress_updated.connect(self.progress_bar.setValue)  # Connect progress signal
+        self.scan_thread.progress_update.connect(self.progress_bar.setValue)  # Connect progress signal
         self.scan_thread.finished.connect(self.scan_finished)
+        self.scan_thread.finished.connect(self.update_table)  # Update table in main thread
         self.scan_thread.start()
+
+    @pyqtSlot()
+    def update_table(self):
+        # ... (Retrieve scan results from ScanThread)
+        self.table.setRowCount(len(scan_results))  # Update table row count
+        for row, data in enumerate(scan_results):
+            for col, key in enumerate(data.keys()):
+                item = QTableWidgetItem(str(data[key]))
+                self.table.setItem(row, col, item)
 
     # Slot to update status bar when scan is finished
     def scan_finished(self):
         self.status_bar.showMessage("Scan completed")
 
-    # Static method (placeholder) for exporting table data
-    @staticmethod
-    def export_table():
-        print("Exporting table")
+    # Slot to export table data to CSV file
+    def export_table(self):
+        try:
+            file_name, _ = QFileDialog.getSaveFileName(self, "Export Table", "", "CSV Files (*.csv)")  # Removed options
+            if file_name:
+                with open(file_name, 'w', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+
+                    # Write headers
+                    headers = []
+                    for column in range(self.table.columnCount()):
+                        header_item = self.table.horizontalHeaderItem(column)
+                        headers.append(header_item.text() if header_item else "")
+                    writer.writerow(headers)
+
+                    # Write data
+                    for row in range(self.table.rowCount()):
+                        row_data = []
+                        for column in range(self.table.columnCount()):
+                            item = self.table.item(row, column)
+                            row_data.append(item.text() if item else "")
+                        writer.writerow(row_data)
+            self.status_bar.showMessage("Table exported to {}".format(file_name))  # Formatted message
+        except Exception as e:
+            self.status_bar.showMessage(f"Error exporting table: {str(e)}")
 
     # Event handler for closing the window
     def closeEvent(self, event: QCloseEvent):
