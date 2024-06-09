@@ -2,7 +2,32 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout, QWidget, QHeaderView, QMessageBox, \
     QProgressBar
 from PyQt6.QtGui import QCloseEvent
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
+import csv
+
+# Dummy data for testing 10 rows of data
+scan_results = [
+    {"IP": "192.168.1.1", "Host Name": "Router", "MAC Address": "00:1A:2B:3C:4D:5E", "State": "Up", "OS": "Linux",
+     "Open Ports": "22, 80", "Ping (ms)": "1", "TTL": "64", "Vendor": "TP-Link", "Notes": "Default gateway"},
+    {"IP": "192.168.1.10", "Host Name": "PC-John", "MAC Address": "A1:B2:C3:D4:E5:F6", "State": "Up", "OS": "Windows",
+     "Open Ports": "135, 445", "Ping (ms)": "3", "TTL": "128", "Vendor": "Dell", "Notes": ""},
+    {"IP": "192.168.1.15", "Host Name": "PC-Mary", "MAC Address": "22:44:66:88:AA:CC", "State": "Up", "OS": "Android",
+     "Open Ports": "554", "Ping (ms)": "5", "TTL": "64", "Vendor": "Samsung", "Notes": ""},
+    {"IP": "192.168.1.20", "Host Name": "Printer", "MAC Address": "11:33:55:77:99:BB", "State": "Up", "OS": "Unknown",
+     "Open Ports": "9100", "Ping (ms)": "2", "TTL": "64", "Vendor": "HP", "Notes": ""},
+    {"IP": "192.168.1.25", "Host Name": "SmartTV", "MAC Address": "FF:EE:DD:CC:BB:AA", "State": "Up", "OS": "Linux",
+     "Open Ports": "80, 5357", "Ping (ms)": "8", "TTL": "64", "Vendor": "LG", "Notes": ""},
+    {"IP": "192.168.1.30", "Host Name": "", "MAC Address": "0A:23:45:67:89:AB", "State": "Down", "OS": "",
+     "Open Ports": "", "Ping (ms)": "", "TTL": "", "Vendor": "", "Notes": ""},
+    {"IP": "192.168.1.35", "Host Name": "Lap-Alice", "MAC Address": "AA:BB:CC:DD:EE:FF", "State": "Up", "OS": "macOS",
+     "Open Ports": "548, 631", "Ping (ms)": "4", "TTL": "64", "Vendor": "Apple", "Notes": ""},
+    {"IP": "192.168.1.40", "Host Name": "RaspberryPi", "MAC Address": "C0:DE:F1:23:45:67", "State": "Up", "OS": "Linux",
+     "Open Ports": "22, 8080", "Ping (ms)": "10", "TTL": "64", "Vendor": "Raspberry Pi Foundation", "Notes": ""},
+    {"IP": "192.168.1.45", "Host Name": "", "MAC Address": "12:34:56:78:9A:BC", "State": "Down", "OS": "",
+     "Open Ports": "", "Ping (ms)": "", "TTL": "", "Vendor": "", "Notes": ""},
+    {"IP": "192.168.1.50", "Host Name": "IPCamera", "MAC Address": "98:76:54:32:10:FE", "State": "Up", "OS": "Unknown",
+     "Open Ports": "80, 554", "Ping (ms)": "7", "TTL": "64", "Vendor": "D-Link", "Notes": "Security camera"}
+]
 
 
 # Thread for network scanning (to prevent UI freezing)
