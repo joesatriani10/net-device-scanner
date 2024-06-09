@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout, QWidget, QHeaderView, QMessageBox, \
-    QProgressBar, QFileDialog, QTableWidgetItem, QLabel, QLineEdit, QHBoxLayout
+    QProgressBar, QFileDialog, QTableWidgetItem, QLabel, QLineEdit, QHBoxLayout, QPushButton
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
 import csv
@@ -64,19 +64,22 @@ class MainWindow(QMainWindow):
 
         # IP range input fields
         ip_start_range_label = QLabel("IP Range:")
-        ip_start_range_input = QLineEdit()
+        self.ip_start_range_input = QLineEdit()
 
         ip_end_range_label = QLabel("to")
-        ip_end_range_input = QLineEdit()
+        self.ip_end_range_input = QLineEdit()
+
+        # Button to start network scan
+        self.scan_button = QPushButton("Scan")
+        self.scan_button.clicked.connect(self.scan_network)
 
         # Create a horizontal layout and add the labels and input fields
         ip_range_layout = QHBoxLayout()
         ip_range_layout.addWidget(ip_start_range_label)
-        ip_range_layout.addWidget(ip_start_range_input)
+        ip_range_layout.addWidget(self.ip_start_range_input)
         ip_range_layout.addWidget(ip_end_range_label)
-        ip_range_layout.addWidget(ip_end_range_input)
-
-
+        ip_range_layout.addWidget(self.ip_end_range_input)
+        ip_range_layout.addWidget(self.scan_button)
 
         # Table widget setup
         self.table = QTableWidget()
@@ -127,6 +130,7 @@ class MainWindow(QMainWindow):
         self.scan_thread.finished.connect(self.scan_finished)
         self.scan_thread.finished.connect(self.update_table)  # Update table in main thread
         self.scan_thread.start()
+        self.scan_button.setEnabled(False)  # Disable scan button during scan
 
     @pyqtSlot()
     def update_table(self):
