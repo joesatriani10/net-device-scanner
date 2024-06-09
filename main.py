@@ -118,6 +118,7 @@ class MainWindow(QMainWindow):
 
     # Slot to start network scan
     def scan_network(self):
+        self.table.setRowCount(0)  # Clear table before scanning
         self.progress_bar.setValue(0)  # Reset progress bar
         self.status_bar.showMessage("Scanning network...")  # Update status bar
         self.scan_thread = ScanThread()
@@ -139,6 +140,7 @@ class MainWindow(QMainWindow):
     # Slot to update status bar when scan is finished
     def scan_finished(self):
         self.status_bar.showMessage("Scan completed")
+        self.scan_button.setEnabled(True)  # Re-enable scan button
 
     # Slot to export table data to CSV file
     def export_table(self):
