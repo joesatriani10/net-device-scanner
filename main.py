@@ -88,12 +88,6 @@ class MainWindow(QMainWindow):
         column_headers = ["IP", "Host Name", "MAC Address", "State", "OS",
                           "Open Ports", "Ping (ms)", "TTL", "Vendor", "Notes"]
         self.table.setHorizontalHeaderLabels(column_headers)  # Set column names
-        # Add dummy data to table
-        for i, row_data in enumerate(scan_results):
-            self.table.insertRow(i)
-            for j, (key, value) in enumerate(row_data.items()):
-                item = QTableWidgetItem(value)
-                self.table.setItem(i, j, item)
 
         # Configure table column resizing
         for i in range(self.table.columnCount() - 1):
