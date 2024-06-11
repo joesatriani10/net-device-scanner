@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
 import csv
+import socket
 
 # Dummy data for testing 10 rows of data
 scan_results = [
@@ -30,6 +31,19 @@ scan_results = [
 ]
 
 
+# get local ip address
+def get_local_ip():
+    hostname = socket.gethostname()
+    ip_addr = socket.gethostbyname(hostname)
+
+    ip_parts = ip_addr.split('.')
+
+    from_ip = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.1"
+    to_ip = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.254"
+
+    return ip_addr, from_ip, to_ip
+
+
 # Thread for network scanning (to prevent UI freezing)
 class ScanThread(QThread):
     progress_update = pyqtSignal(int)  # Signal to emit scan progress updates
@@ -50,7 +64,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.scan_thread = None
-        self.setWindowTitle("Net Device Scanner")  # Set window title
+        ip_data = get_local_ip()  # Get local IP address and range
+        self.setWindowTitle(f"🔍 Net Device Scanner   |   your IP: {ip_data[0]}")  # Set window title
         self.resize(1280, 768)  # Set initial window size
         self.setMinimumSize(800, 600)  # Set minimum window size
 
@@ -66,9 +81,11 @@ class MainWindow(QMainWindow):
         # IP range input fields
         ip_start_range_label = QLabel("IP Range:")
         self.ip_start_range_input = QLineEdit()
+        self.ip_start_range_input.setText(ip_data[1])
 
         ip_end_range_label = QLabel("to")
         self.ip_end_range_input = QLineEdit()
+        self.ip_end_range_input.setText(ip_data[2])
 
         # Button to start network scan
         self.scan_button = QPushButton("Scan")
