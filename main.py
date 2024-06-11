@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout, QWidget, QHeaderView, QMessageBox, \
     QProgressBar, QFileDialog, QTableWidgetItem, QLabel, QLineEdit, QHBoxLayout, QPushButton
-from PyQt6.QtGui import QCloseEvent
+from PyQt6.QtGui import QCloseEvent, QIcon
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
 import csv
 import socket
@@ -63,9 +63,14 @@ class ScanThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        #  Set window icon
+        icon = QIcon("icon.png")
+        self.setWindowIcon(icon)
+
         self.scan_thread = None
         ip_data = get_local_ip()  # Get local IP address and range
-        self.setWindowTitle(f"🔍 Net Device Scanner   |   your IP: {ip_data[0]}")  # Set window title
+        self.setWindowTitle(f"Net Device Scanner   |   your IP: {ip_data[0]}")  # Set window title
         self.resize(1280, 768)  # Set initial window size
         self.setMinimumSize(800, 600)  # Set minimum window size
 
